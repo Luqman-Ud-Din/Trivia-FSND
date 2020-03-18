@@ -8,6 +8,9 @@
 ehthumbs.db
 Thumbs.db
 
+node_modules
+.idea
+
 # Byte-compiled / optimized / DLL files
 .vscode
 __pycache__/
