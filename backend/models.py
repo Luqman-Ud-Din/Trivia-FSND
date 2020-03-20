@@ -20,6 +20,16 @@ def setup_db(app, database_path=database_path):
     db.create_all()
 
 
+def paginate_selection(selection, page=1, limit=10):
+    start = (page - 1) * limit
+    end = start + limit
+    return selection[start:end], len(selection)
+
+
+def format_selection(selection):
+    return [s.format() for s in selection]
+
+
 '''
 Question
 

@@ -1,37 +1,10 @@
 import random
-from enum import Enum
 
 from flask import Flask, jsonify, abort, request
 from flask_cors import CORS
 
-from backend.models import Category, setup_db, Question
-
-QUESTIONS_PER_PAGE = 10
-
-
-class StatusCode(Enum):
-    """Enum to maintain status codes."""
-
-    HTTP_200_OK = 200
-    HTTP_201_CREATED = 201
-    HTTP_204_NO_CONTENT = 204
-    HTTP_400_BAD_REQUEST = 400
-    HTTP_401_UNAUTHORIZED = 401
-    HTTP_403_FORBIDDEN = 403
-    HTTP_404_NOT_FOUND = 404
-    HTTP_405_METHOD_NOT_ALLOWED = 405
-    HTTP_422_UNPROCESSABLE_ENTITY = 422
-    HTTP_500_INTERNAL_SERVER_ERROR = 500
-
-
-def paginate_selection(selection, page=1, limit=10):
-    start = (page - 1) * limit
-    end = start + limit
-    return selection[start:end], len(selection)
-
-
-def format_selection(selection):
-    return [s.format() for s in selection]
+from backend.constants import QUESTIONS_PER_PAGE, StatusCode
+from backend.models import Category, setup_db, Question, paginate_selection, format_selection
 
 
 def create_app(test_config=None):
