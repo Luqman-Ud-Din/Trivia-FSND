@@ -40,12 +40,17 @@ psql trivia < trivia.psql
 
 From within the `backend` directory first ensure you are working using your created virtual environment.
 
-To run the server, execute:
+To run the server, you need to set database configurations
+- username
+- password
+- database name
+- host
+- port
+
+execute:
 
 ```bash
-export FLASK_APP=flaskr
-export FLASK_ENV=development
-flask run
+FLASK_APP=backend/flaskr FLASK_ENV=development DATABASE_USER={username} DATABASE_PASSWORD={password} DATABASE_HOST=localshost DATABASE_PORT=5432 DATABASE_NAME=trivia flask run
 ```
 
 Setting the `FLASK_ENV` variable to `development` will detect file changes and restart the server automatically.
