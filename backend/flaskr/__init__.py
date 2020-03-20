@@ -62,24 +62,6 @@ def create_app(test_config=None):
         )
         return response
 
-    @app.route('/categories')
-    def list_categories():
-        """
-        Return the categories with id and type.
-        :return:
-        """
-        try:
-            result = {
-                "success": True,
-                "categories": {
-                    category.id: category.type
-                    for category in Category.query.all()
-                }
-            }
-            return jsonify(result)
-        except:
-            abort(StatusCode.HTTP_500_INTERNAL_SERVER_ERROR.value)
-
     @app.route('/questions')
     def list_questions():
         """
@@ -168,14 +150,50 @@ def create_app(test_config=None):
         except:
             abort(StatusCode.HTTP_500_INTERNAL_SERVER_ERROR.value)
 
-    '''
-    @TODO: 
-    Create a GET endpoint to get questions based on category. 
-  
-    TEST: In the "List" tab / main screen, clicking on one of the 
-    categories in the left column will cause only questions of that 
-    category to be shown. 
-    '''
+    @app.route('/categories')
+    def list_categories():
+        """
+        Return the categories with id and type.
+        :return:
+        """
+        try:
+            result = {
+                "success": True,
+                "categories": {
+                    category.id: category.type
+                    for category in Category.query.all()
+                }
+            }
+            return jsonify(result)
+        except:
+            abort(StatusCode.HTTP_500_INTERNAL_SERVER_ERROR.value)
+
+    @app.route('/categories/<int:category_id>/questions')
+    def get_questions_by_category(category_id):
+        """
+        Get questions by category.
+        :param category_id:
+        :return:
+        """
+        try:
+            category = Category.query.get(category_id)
+
+            if not category:
+                abort(StatusCode.HTTP_404_NOT_FOUND.value)
+
+            page = request.args.get('page', 1, type=int)
+            selection = Question.query.filter_by(category=category_id).all()
+            selection, total_selection_count = paginate_selection(selection, page=page, limit=QUESTIONS_PER_PAGE)
+
+            return jsonify({
+                "success": True,
+                "questions": format_selection(selection),
+                "total_questions": total_selection_count,
+                "current_category": category.format(),
+            })
+        except:
+            abort(StatusCode.HTTP_500_INTERNAL_SERVER_ERROR.value)
+
 
     '''
     @TODO: 
