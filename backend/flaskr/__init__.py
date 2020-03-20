@@ -88,7 +88,6 @@ def create_app(test_config=None):
             'success': True
         }), StatusCode.HTTP_204_NO_CONTENT.value
 
-
     @app.route('/questions/filter', methods=['POST'])
     def filter_questions():
         """
@@ -106,7 +105,6 @@ def create_app(test_config=None):
             'total_questions': total_selection_count,
         })
 
-
     @app.route('/categories')
     def list_categories():
         """
@@ -121,7 +119,6 @@ def create_app(test_config=None):
             }
         }
         return jsonify(result)
-
 
     @app.route('/categories/<int:category_id>/questions')
     def get_questions_by_category(category_id):

@@ -1,8 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, String, Integer
 
-database_name = "trivia"
-database_path = "postgres://postgres:postgres@{}/{}".format('localhost:5432', database_name)
+from backend.constants import DATABASE_PATH
 
 db = SQLAlchemy()
 
@@ -12,7 +11,7 @@ setup_db(app)
 '''
 
 
-def setup_db(app, database_path=database_path):
+def setup_db(app, database_path=DATABASE_PATH):
     app.config["SQLALCHEMY_DATABASE_URI"] = database_path
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.app = app
