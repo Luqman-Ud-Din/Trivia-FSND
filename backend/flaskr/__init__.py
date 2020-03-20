@@ -1,10 +1,4 @@
-# import os
-# from flask import Flask, request, abort, jsonify
-# from flask_sqlalchemy import SQLAlchemy
-# from flask_cors import CORS
-# import random
-#
-# from models import setup_db, Question, Category
+import random
 from enum import Enum
 
 from flask import Flask, jsonify, abort, request
@@ -194,18 +188,34 @@ def create_app(test_config=None):
         except:
             abort(StatusCode.HTTP_500_INTERNAL_SERVER_ERROR.value)
 
+    @app.route('/quizzes', methods=['POST'])
+    def play_quiz():
+        """
+        Play quiz route to get questions for quizzes.
+        :return:
+        """
+        try:
+            request_data = request.get_json()
+            previous_questions = request_data.get('previous_questions', [])
+            quiz_category = request_data.get('quiz_category')
 
-    '''
-    @TODO: 
-    Create a POST endpoint to get questions to play the quiz. 
-    This endpoint should take category and previous question parameters 
-    and return a random questions within the given category, 
-    if provided, and that is not one of the previous questions. 
-  
-    TEST: In the "Play" tab, after a user selects "All" or a category,
-    one question at a time is displayed, the user is allowed to answer
-    and shown whether they were correct or not. 
-    '''
+            if not quiz_category:
+                abort(StatusCode.HTTP_400_BAD_REQUEST.value)
+
+            category_id = quiz_category.get('id', None)
+            if category_id:
+                questions = Question.query.filter_by(category=category_id)
+            else:
+                questions = Question.query
+
+            questions = format_selection(questions.filter(~Question.id.in_(previous_questions)).all())
+            random_question = random.choice(questions) if questions else None
+
+            return jsonify({
+                'question': random_question, 'success': True
+            })
+        except:
+            abort(StatusCode.HTTP_500_INTERNAL_SERVER_ERROR.value)
 
     @app.errorhandler(StatusCode.HTTP_400_BAD_REQUEST.value)
     def bad_request(error):
