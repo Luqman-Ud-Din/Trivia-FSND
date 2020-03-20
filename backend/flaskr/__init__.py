@@ -35,27 +35,24 @@ def create_app(test_config=None):
         Get questions for a given page.
         :return:
         """
-        try:
-            page = request.args.get('page', 1, type=int)
-            selection = Question.query.all()
-            selection, total_selection_count = paginate_selection(selection, page=page, limit=QUESTIONS_PER_PAGE)
+        page = request.args.get('page', 1, type=int)
+        selection = Question.query.all()
+        selection, total_selection_count = paginate_selection(selection, page=page, limit=QUESTIONS_PER_PAGE)
 
-            categories = {
-                category.id: category.type for category in Category.query.all()
-            }
+        categories = {
+            category.id: category.type for category in Category.query.all()
+        }
 
-            if len(selection) == 0:
-                abort(StatusCode.HTTP_404_NOT_FOUND.value)
+        if len(selection) == 0:
+            abort(StatusCode.HTTP_404_NOT_FOUND.value)
 
-            return jsonify({
-                'success': True,
-                'current_category': None,
-                'categories': categories,
-                'questions': format_selection(selection),
-                'total_questions': total_selection_count
-            })
-        except:
-            abort(StatusCode.HTTP_500_INTERNAL_SERVER_ERROR.value)
+        return jsonify({
+            'success': True,
+            'current_category': None,
+            'categories': categories,
+            'questions': format_selection(selection),
+            'total_questions': total_selection_count
+        })
 
     @app.route('/questions', methods=['POST'])
     def create_question():
@@ -63,20 +60,17 @@ def create_app(test_config=None):
         Add a question to database.
         :return:
         """
-        try:
-            question = request.get_json()
+        question = request.get_json()
 
-            if not question:
-                abort(StatusCode.HTTP_400_BAD_REQUEST.value)
+        if not question:
+            abort(StatusCode.HTTP_400_BAD_REQUEST.value)
 
-            question = Question(**question)
-            question.insert()
+        question = Question(**question)
+        question.insert()
 
-            return jsonify({
-                'success': True, 'id': question.id
-            }), StatusCode.HTTP_201_CREATED.value
-        except:
-            abort(StatusCode.HTTP_500_INTERNAL_SERVER_ERROR.value)
+        return jsonify({
+            'success': True, 'id': question.id
+        }), StatusCode.HTTP_201_CREATED.value
 
     @app.route('/questions/<int:question_id>', methods=['DELETE'])
     def delete_question(question_id):
@@ -85,17 +79,15 @@ def create_app(test_config=None):
         :param question_id:
         :return:
         """
-        try:
-            question = Question.query.get(question_id)
-            if not question:
-                abort(StatusCode.HTTP_404_NOT_FOUND.value)
+        question = Question.query.get(question_id)
+        if not question:
+            abort(StatusCode.HTTP_404_NOT_FOUND.value)
 
-            question.delete()
-            return jsonify({
-                'success': True
-            }), StatusCode.HTTP_204_NO_CONTENT.value
-        except:
-            abort(StatusCode.HTTP_500_INTERNAL_SERVER_ERROR.value)
+        question.delete()
+        return jsonify({
+            'success': True
+        }), StatusCode.HTTP_204_NO_CONTENT.value
+
 
     @app.route('/questions/filter', methods=['POST'])
     def filter_questions():
@@ -103,19 +95,17 @@ def create_app(test_config=None):
         Return the list of questions after filteration.
         :return:
         """
-        try:
-            page = request.args.get('page', 1, type=int)
-            search_term = request.get_json().get('searchTerm') or ''
-            selection = Question.query.filter(Question.question.ilike(f'%{search_term}%')).all()
-            selection, total_selection_count = paginate_selection(selection, page=page, limit=QUESTIONS_PER_PAGE)
+        page = request.args.get('page', 1, type=int)
+        search_term = request.get_json().get('searchTerm') or ''
+        selection = Question.query.filter(Question.question.ilike(f'%{search_term}%')).all()
+        selection, total_selection_count = paginate_selection(selection, page=page, limit=QUESTIONS_PER_PAGE)
 
-            return jsonify({
-                'success': True,
-                'questions': format_selection(selection),
-                'total_questions': total_selection_count,
-            })
-        except:
-            abort(StatusCode.HTTP_500_INTERNAL_SERVER_ERROR.value)
+        return jsonify({
+            'success': True,
+            'questions': format_selection(selection),
+            'total_questions': total_selection_count,
+        })
+
 
     @app.route('/categories')
     def list_categories():
@@ -123,17 +113,15 @@ def create_app(test_config=None):
         Return the categories with id and type.
         :return:
         """
-        try:
-            result = {
-                "success": True,
-                "categories": {
-                    category.id: category.type
-                    for category in Category.query.all()
-                }
+        result = {
+            "success": True,
+            "categories": {
+                category.id: category.type
+                for category in Category.query.all()
             }
-            return jsonify(result)
-        except:
-            abort(StatusCode.HTTP_500_INTERNAL_SERVER_ERROR.value)
+        }
+        return jsonify(result)
+
 
     @app.route('/categories/<int:category_id>/questions')
     def get_questions_by_category(category_id):
@@ -142,24 +130,21 @@ def create_app(test_config=None):
         :param category_id:
         :return:
         """
-        try:
-            category = Category.query.get(category_id)
+        category = Category.query.get(category_id)
 
-            if not category:
-                abort(StatusCode.HTTP_404_NOT_FOUND.value)
+        if not category:
+            abort(StatusCode.HTTP_404_NOT_FOUND.value)
 
-            page = request.args.get('page', 1, type=int)
-            selection = Question.query.filter_by(category=category_id).all()
-            selection, total_selection_count = paginate_selection(selection, page=page, limit=QUESTIONS_PER_PAGE)
+        page = request.args.get('page', 1, type=int)
+        selection = Question.query.filter_by(category=category_id).all()
+        selection, total_selection_count = paginate_selection(selection, page=page, limit=QUESTIONS_PER_PAGE)
 
-            return jsonify({
-                "success": True,
-                "questions": format_selection(selection),
-                "total_questions": total_selection_count,
-                "current_category": category.format(),
-            })
-        except:
-            abort(StatusCode.HTTP_500_INTERNAL_SERVER_ERROR.value)
+        return jsonify({
+            "success": True,
+            "questions": format_selection(selection),
+            "total_questions": total_selection_count,
+            "current_category": category.format(),
+        })
 
     @app.route('/quizzes', methods=['POST'])
     def play_quiz():
@@ -167,28 +152,25 @@ def create_app(test_config=None):
         Play quiz route to get questions for quizzes.
         :return:
         """
-        try:
-            request_data = request.get_json()
-            previous_questions = request_data.get('previous_questions', [])
-            quiz_category = request_data.get('quiz_category')
+        request_data = request.get_json()
+        previous_questions = request_data.get('previous_questions', [])
+        quiz_category = request_data.get('quiz_category')
 
-            if not quiz_category:
-                abort(StatusCode.HTTP_400_BAD_REQUEST.value)
+        if not quiz_category:
+            abort(StatusCode.HTTP_400_BAD_REQUEST.value)
 
-            category_id = quiz_category.get('id', None)
-            if category_id:
-                questions = Question.query.filter_by(category=category_id)
-            else:
-                questions = Question.query
+        category_id = quiz_category.get('id', None)
+        if category_id:
+            questions = Question.query.filter_by(category=category_id)
+        else:
+            questions = Question.query
 
-            questions = format_selection(questions.filter(~Question.id.in_(previous_questions)).all())
-            random_question = random.choice(questions) if questions else None
+        questions = format_selection(questions.filter(~Question.id.in_(previous_questions)).all())
+        random_question = random.choice(questions) if questions else None
 
-            return jsonify({
-                'question': random_question, 'success': True
-            })
-        except:
-            abort(StatusCode.HTTP_500_INTERNAL_SERVER_ERROR.value)
+        return jsonify({
+            'question': random_question, 'success': True
+        })
 
     @app.errorhandler(StatusCode.HTTP_400_BAD_REQUEST.value)
     def bad_request(error):
